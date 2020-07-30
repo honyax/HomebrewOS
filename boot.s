@@ -36,33 +36,22 @@ ipl:
 		mov		[BOOT.DRIVE], dl			; ブートドライブを保存
 
 		;-----------------------------------
-		; 文字を表示
+		; メッセージを表示して再起動
 		;-----------------------------------
-		cdecl	puts, data.s0				; puts(data.s0);
+		cdecl	puts, data.s0				; puts(data.s0)
 
-		;---------------------------------------
-		; 数値を表示
-		;---------------------------------------
-		cdecl	itoa,  8086, data.s1, 8, 10, 0b0001	; "    8086"
-		cdecl	puts, data.s1
+		;-----------------------------------
+		; キー入力待ち
+		;-----------------------------------
+wait_key:
+		mov		ah, 0x10					; // キー入力待ち
+		int		0x16						; AL = BIOS(0x16, 0x10);
 
-		cdecl	itoa,  8086, data.s1, 8, 10, 0b0011	; "+   8086"
-		cdecl	puts, data.s1
+		cmp		al, ' '						; ZF = AL == ' ';
+		jne		wait_key
 
-		cdecl	itoa, -8086, data.s1, 8, 10, 0b0001	; "-   8086"
-		cdecl	puts, data.s1
-
-		cdecl	itoa,    -1, data.s1, 8, 10, 0b0001	; "-      1"
-		cdecl	puts, data.s1
-
-		cdecl	itoa,    -1, data.s1, 8, 10, 0b0000	; "   65535"
-		cdecl	puts, data.s1
-
-		cdecl	itoa,    -1, data.s1, 8, 16, 0b0000	; "    FFFF"
-		cdecl	puts, data.s1
-
-		cdecl	itoa,    12, data.s1, 8,  2, 0b0100	; "00001100"
-		cdecl	puts, data.s1
+		cdecl	puts, data.s1				; // 改行
+		int		0x19						; BIOS(0x19)	// reboot();
 
 		;---------------------------------------
 		; 終了
@@ -73,8 +62,8 @@ ipl:
 		; データ
 		;-----------------------------------
 data:
-.s0		db	"HomebrewOS Booting...", 0x0A, 0x0D, 0
-.s1		db	"--------", 0x0A, 0x0D, 0
+.s0		db	0x0A, 0x0D, "Push SPACE key to reboot...", 0x0A, 0x0D, 0
+.s1		db	0x0A, 0x0D, 0x0A, 0x0D, 0
 
 ALIGN 2, db 0
 BOOT:										; ブートドライブに関する情報
@@ -84,7 +73,6 @@ BOOT:										; ブートドライブに関する情報
 ;	モジュール
 ;************************************************************************
 %include	"../modules/real/puts.s"
-%include	"../modules/real/itoa.s"
 
 ;************************************************************************
 ;	ブートフラグ（先頭512バイトの終了）
