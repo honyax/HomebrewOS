@@ -261,12 +261,73 @@ stage_4:
 		cdecl	puts, .s1
 
 		;---------------------------------------
+		; キーボードLEDのテスト
+		;---------------------------------------
+		cdecl	puts, .s2						; 
+
+		mov		bx, 0							; CX = LEDの初期値;
+.10L:											; do
+												; {
+		mov		ah, 0x00						;   // キー入力待ち
+		int		0x16							;   AL = BIOS(0x16, 0x00);
+												;   
+		cmp		al, '1'							;   if (AL < '1')
+		jb		.10E							;     break;
+												;   
+		cmp		al, '3'							;   if ('3' < AL)
+		ja		.10E							;     break;
+												;   
+		mov		cl, al							;   CL   = キー入力;
+		dec		cl								;   CL  -= 1;       // 1減算
+		and		cl, 0x03						;   CL  &= 0x03;    // 0〜2に制限
+		mov		ax, 0x0001						;   AX   = 0x0001;  // ビット変換用
+		shl		ax, cl							;   AX <<= CL;      // 0〜2ビット左シフト
+		xor		bx, ax							;   BX  ^= AX;      // ビット反転
+
+		;---------------------------------------
+		; LEDコマンドの送信
+		;---------------------------------------
+		cli										;   // 割り込み禁止
+
+		cdecl	KBC_Cmd_Write, 0xAD				;   // キーボード無効化
+												;   
+		cdecl	KBC_Data_Write, 0xED			;   // LEDコマンド
+		cdecl	KBC_Data_Read, .key				;   // 受信応答
+												;   
+		cmp		[.key], byte 0xFA				;   if (0xFA == key)
+		jne		.11F							;   {
+												;     
+		cdecl	KBC_Data_Write, bx				;     // LEDデータ出力
+												;   }
+		jmp		.11E							;   else
+.11F:											;   {
+		cdecl	itoa, word [.key], .e1, 2, 16, 0b0100
+		cdecl	puts, .e0						;     // 受信コードを表示
+.11E:											;   }
+												;   
+		cdecl	KBC_Cmd_Write, 0xAE				;   // キーボード有効化
+
+		sti										;   // 割り込み許可
+												;   
+		jmp		.10L							; } while (1);
+.10E:
+
+		;---------------------------------------
+		; 文字列を表示
+		;---------------------------------------
+		cdecl	puts, .s3
+
+		;---------------------------------------
 		; 処理の終了
 		;---------------------------------------
 		jmp		$								; while (1); // 無限ループ
 
 .s0:	db	"4th stage...", 0x0A, 0x0D, 0
 .s1:	db	" A20 Gate Enabled.", 0x0A, 0x0D, 0
+.s2:	db	" Keyboard LED Test...", 0
+.s3:	db	" (done)", 0x0A, 0x0D, 0
+.e0:	db	"["
+.e1:	db	"ZZ]", 0
 
 .key:	dw	0
 
