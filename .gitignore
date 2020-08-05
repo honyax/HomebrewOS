@@ -1,2 +1,5 @@
-boot.lst
 boot.img
+boot.lst
+boot.bin
+kernel.lst
+kernel.bin
