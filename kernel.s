@@ -24,73 +24,16 @@ kernel:
 		add		eax, ebx						; EAX  += EBX;
 		mov		[FONT_ADR], eax					; FONT_ADR[0] = EAX;
 
-		mov		ah, 0x07						; AH = 書き込みプレーンを指定（Bit:----IRGB）
-		mov		al, 0x02						; AL = マップマスクレジスタ（書き込みプレーンを指定）
-		mov		dx, 0x03C4						; DX = シーケンサ制御ポート
-		out		dx, ax							; // ポート出力（プレーンの選択）
-
-		mov		[0x000A_0000 + 0], byte 0xFF
-
-		mov		ah, 0x04						; AH = 書き込みプレーンを指定（Bit:----IRGB）
-		out		dx, ax							; // ポート出力（プレーンの選択）
-
-		mov		[0x000A_0000 + 1], byte 0xFF	; // 8ドットの横線
-
-		mov		ah, 0x02						; AH = 書き込みプレーンを指定（Bit:----IRGB）
-		out		dx, ax							; // ポート出力（プレーンの選択）
-
-		mov		[0x000A_0000 + 2], byte 0xFF	; // 8ドットの横線
-
-		mov		ah, 0x01						; AH = 書き込みプレーンを指定（Bit:----IRGB）
-		out		dx, ax							; // ポート出力（プレーンの選択）
-
-		mov		[0x000A_0000 + 3], byte 0xFF	; // 8ドットの横線
-
 		;---------------------------------------
-		; 画面を横切る横線
+		; 文字の表示
 		;---------------------------------------
-		mov		ah, 0x02						; AH = 書き込みプレーンを指定（Bit:----IRGB）
-		out		dx, ax							; // ポート出力（プレーンの選択）
+		cdecl	draw_char, 0, 0, 0x010F, 'A'
+		cdecl	draw_char, 1, 0, 0x010F, 'B'
+		cdecl	draw_char, 2, 0, 0x010F, 'C'
 
-		lea		edi, [0x000A_0000 + 80]			; EDI = VRAMアドレス;
-		mov		ecx, 80							; ECX = 繰り返し回数;
-		mov		al, 0xFF						; AL  = ビットパターン;
-		rep		stosb							; *EDI++ = AL;
-
-		;---------------------------------------
-		; 2行目に8ドットの矩形
-		;---------------------------------------
-		mov		edi, 1							; EDI  = 行数;
-
-		shl		edi, 8							; EDI *= 256;
-		lea		edi, [edi * 4 + edi + 0xA_0000]	; EDI  = VRAMアドレス;
-
-		mov		[edi + (80 * 0)], word 0xFF
-		mov		[edi + (80 * 1)], word 0xFF
-		mov		[edi + (80 * 2)], word 0xFF
-		mov		[edi + (80 * 3)], word 0xFF
-		mov		[edi + (80 * 4)], word 0xFF
-		mov		[edi + (80 * 5)], word 0xFF
-		mov		[edi + (80 * 6)], word 0xFF
-		mov		[edi + (80 * 7)], word 0xFF
-
-		;---------------------------------------
-		; 3行目に文字を描画
-		;---------------------------------------
-		mov		esi, 'A'						; ESI  = 文字コード;
-		shl		esi, 4							; ESI *= 16;
-		add		esi, [FONT_ADR]					; ESI  = FONT_ADR[文字コード];
-
-		mov		edi, 2							; EDI  = 行数;
-		shl		edi, 8							; EDI *= 256;
-		lea		edi, [edi * 4 + edi + 0xA_0000]	; EDI  = VRAMアドレス;
-
-		mov		ecx, 16							; ECX  = 16;
-.10L:											; do
-												; {
-		movsb									;   *EDI++ = *ESI++
-		add		edi, 80 - 1						;   EDI += 79; // 1ドット分
-		loop	.10L							; } while (--ECX);
+		cdecl	draw_char, 0, 0, 0x0402, '0'
+		cdecl	draw_char, 1, 0, 0x0212, '1'
+		cdecl	draw_char, 2, 0, 0x0212, '_'
 
 		;---------------------------------------
 		; 処理の終了
@@ -99,6 +42,12 @@ kernel:
 
 ALIGN 4, db 0
 FONT_ADR:	dd	0
+
+;************************************************************************
+;	モジュール
+;************************************************************************
+%include	"../modules/protect/vga.s"
+%include	"../modules/protect/draw_char.s"
 
 ;************************************************************************
 ;	パディング
