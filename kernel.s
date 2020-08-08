@@ -41,9 +41,16 @@ kernel:
 		cdecl	draw_font, 63, 13				; // フォントの一覧表示
 
 		;---------------------------------------
+		; 文字列の表示
+		;---------------------------------------
+		cdecl	draw_str, 25, 14, 0x010F, .s0	; draw_str();
+
+		;---------------------------------------
 		; 処理の終了
 		;---------------------------------------
 		jmp		$								; while (1); // 無限ループ
+
+.s0:	db	" Hello, honyax kernel! ", 0
 
 ALIGN 4, db 0
 FONT_ADR:	dd	0
@@ -54,6 +61,7 @@ FONT_ADR:	dd	0
 %include	"../modules/protect/vga.s"
 %include	"../modules/protect/draw_char.s"
 %include	"../modules/protect/draw_font.s"
+%include	"../modules/protect/draw_str.s"
 
 ;************************************************************************
 ;	パディング
