@@ -39,6 +39,7 @@ kernel:
 		; フォントの一覧表示
 		;---------------------------------------
 		cdecl	draw_font, 63, 13				; // フォントの一覧表示
+		cdecl	draw_color_bar, 63, 4			; // カラーバーの表示
 
 		;---------------------------------------
 		; 文字列の表示
@@ -62,6 +63,7 @@ FONT_ADR:	dd	0
 %include	"../modules/protect/draw_char.s"
 %include	"../modules/protect/draw_font.s"
 %include	"../modules/protect/draw_str.s"
+%include	"../modules/protect/draw_color_bar.s"
 
 ;************************************************************************
 ;	パディング
