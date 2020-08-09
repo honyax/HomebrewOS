@@ -27,13 +27,13 @@ kernel:
 		;---------------------------------------
 		; 文字の表示
 		;---------------------------------------
-		cdecl	draw_char, 0, 0, 0x010F, 'A'
-		cdecl	draw_char, 1, 0, 0x010F, 'B'
-		cdecl	draw_char, 2, 0, 0x010F, 'C'
+		;cdecl	draw_char, 0, 0, 0x010F, 'A'
+		;cdecl	draw_char, 1, 0, 0x010F, 'B'
+		;cdecl	draw_char, 2, 0, 0x010F, 'C'
 
-		cdecl	draw_char, 0, 0, 0x0402, '0'
-		cdecl	draw_char, 1, 0, 0x0212, '1'
-		cdecl	draw_char, 2, 0, 0x0212, '_'
+		;cdecl	draw_char, 0, 0, 0x0402, '0'
+		;cdecl	draw_char, 1, 0, 0x0212, '1'
+		;cdecl	draw_char, 2, 0, 0x0212, '_'
 
 		;---------------------------------------
 		; フォントの一覧表示
@@ -45,6 +45,27 @@ kernel:
 		; 文字列の表示
 		;---------------------------------------
 		cdecl	draw_str, 25, 14, 0x010F, .s0	; draw_str();
+
+		;---------------------------------------
+		; ピクセルを出力
+		;---------------------------------------
+		cdecl	draw_pixel,  8, 4, 0x01
+		cdecl	draw_pixel,  9, 5, 0x01
+		cdecl	draw_pixel, 10, 6, 0x02
+		cdecl	draw_pixel, 11, 7, 0x02
+		cdecl	draw_pixel, 12, 8, 0x03
+		cdecl	draw_pixel, 13, 9, 0x03
+		cdecl	draw_pixel, 14,10, 0x04
+		cdecl	draw_pixel, 15,11, 0x04
+
+		cdecl	draw_pixel, 15, 4, 0x03
+		cdecl	draw_pixel, 14, 5, 0x03
+		cdecl	draw_pixel, 13, 6, 0x04
+		cdecl	draw_pixel, 12, 7, 0x04
+		cdecl	draw_pixel, 11, 8, 0x01
+		cdecl	draw_pixel, 10, 9, 0x01
+		cdecl	draw_pixel,  9,10, 0x02
+		cdecl	draw_pixel,  8,11, 0x02
 
 		;---------------------------------------
 		; 処理の終了
@@ -64,6 +85,7 @@ FONT_ADR:	dd	0
 %include	"../modules/protect/draw_font.s"
 %include	"../modules/protect/draw_str.s"
 %include	"../modules/protect/draw_color_bar.s"
+%include	"../modules/protect/draw_pixel.s"
 
 ;************************************************************************
 ;	パディング
