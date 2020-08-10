@@ -77,6 +77,13 @@ kernel:
 		cdecl	draw_str, 25, 14, 0x010F, .s0	; draw_str();
 
 		;---------------------------------------
+		; 割り込み処理の呼び出し
+		;---------------------------------------
+		push	0xDDCCBBAA						; （ダミー）
+		pushf									; EFLAGSの保存
+		call	0x0008:int_default				; デフォルト割り込み処理の呼び出し
+
+		;---------------------------------------
 		; 時刻の表示
 		;---------------------------------------
 .10L:											; do
@@ -110,6 +117,7 @@ RTC_TIME:	dd	0
 %include	"../modules/protect/itoa.s"
 %include	"../modules/protect/rtc.s"
 %include	"../modules/protect/draw_time.s"
+%include	"modules/interrupt.s"
 
 ;************************************************************************
 ;	パディング
