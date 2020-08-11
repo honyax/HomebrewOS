@@ -28,49 +28,26 @@ kernel:
 		; 初期化
 		;---------------------------------------
 		cdecl	init_int						; // 割り込みベクタの初期化
+		cdecl	init_pic						; // 割り込みコントローラの初期化
 
 		set_vect	0x00, int_zero_div			; // 割り込み処理の登録：0除算
+		set_vect	0x28, int_rtc				; // 割り込み処理の登録：RTC
 
 		;---------------------------------------
-		; 文字の表示
+		; デバイスの割り込み許可
 		;---------------------------------------
-		;cdecl	draw_char, 0, 0, 0x010F, 'A'
-		;cdecl	draw_char, 1, 0, 0x010F, 'B'
-		;cdecl	draw_char, 2, 0, 0x010F, 'C'
-
-		;cdecl	draw_char, 0, 0, 0x0402, '0'
-		;cdecl	draw_char, 1, 0, 0x0212, '1'
-		;cdecl	draw_char, 2, 0, 0x0212, '_'
+		cdecl	rtc_int_en, 0x10				; rtc_int_en(UIE); // 更新サイクル終了割り込み許可
 
 		;---------------------------------------
-		; 線を描画
+		; IMR(割り込みマスクレジスタ)の設定
 		;---------------------------------------
-		;cdecl	draw_line, 100, 100,   0,   0, 0x0F
-		;cdecl	draw_line, 100, 100, 200,   0, 0x0F
-		;cdecl	draw_line, 100, 100, 200, 200, 0x0F
-		;cdecl	draw_line, 100, 100,   0, 200, 0x0F
-
-		;cdecl	draw_line, 100, 100,  50,   0, 0x02
-		;cdecl	draw_line, 100, 100, 150,   0, 0x03
-		;cdecl	draw_line, 100, 100, 150, 200, 0x04
-		;cdecl	draw_line, 100, 100,  50, 200, 0x05
-
-		;cdecl	draw_line, 100, 100,   0,  50, 0x02
-		;cdecl	draw_line, 100, 100, 200,  50, 0x03
-		;cdecl	draw_line, 100, 100, 200, 150, 0x04
-		;cdecl	draw_line, 100, 100,   0, 150, 0x05
-
-		;cdecl	draw_line, 100, 100, 100,   0, 0x0F
-		;cdecl	draw_line, 100, 100, 200, 100, 0x0F
-		;cdecl	draw_line, 100, 100, 100, 200, 0x0F
-		;cdecl	draw_line, 100, 100,   0, 100, 0x0F
+		outp	0x21, 0b_1111_1011				; // 割り込み有効：スレーブPIC
+		outp	0xA1, 0b_1111_1110				; // 割り込み有効：RTC
 
 		;---------------------------------------
-		; 矩形を描画
+		; CPUの割り込み許可
 		;---------------------------------------
-		;cdecl	draw_rect, 100, 100, 200, 200, 0x03
-		;cdecl	draw_rect, 400, 250, 150, 150, 0x05
-		;cdecl	draw_rect, 350, 400, 300, 100, 0x06
+		sti										; // 割り込み許可
 
 		;---------------------------------------
 		; フォントの一覧表示
@@ -84,23 +61,12 @@ kernel:
 		cdecl	draw_str, 25, 14, 0x010F, .s0	; draw_str();
 
 		;---------------------------------------
-		; 0除算による割り込みを呼び出し
-		;---------------------------------------
-;		int		0								; // 割り込み処理の呼び出し
-
-		;---------------------------------------
-		; 0除算による割り込みを生成
-		;---------------------------------------
-		mov		al, 0							; AL = 0;
-		div		al								; ** 0除算 **
-
-		;---------------------------------------
 		; 時刻の表示
 		;---------------------------------------
 .10L:											; do
 												; {
-		cdecl	rtc_get_time, RTC_TIME			;   EAX = get_time(&RTC_TIME);
-		cdecl	draw_time, 72, 0, 0x0700, dword [RTC_TIME]
+		mov		eax, [RTC_TIME]					;   // 時刻の取得
+		cdecl	draw_time, 72, 0, 0x0700, eax	;   // 時刻の表示
 		jmp		.10L							; } while (1);
 
 		;---------------------------------------
@@ -128,7 +94,9 @@ RTC_TIME:	dd	0
 %include	"../modules/protect/itoa.s"
 %include	"../modules/protect/rtc.s"
 %include	"../modules/protect/draw_time.s"
-%include	"modules/interrupt.s"
+%include	"../modules/protect/interrupt.s"
+%include	"../modules/protect/pic.s"
+%include	"../modules/protect/int_rtc.s"
 
 ;************************************************************************
 ;	パディング
