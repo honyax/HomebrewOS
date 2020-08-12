@@ -34,6 +34,7 @@ kernel:
 		cdecl	init_pic						; // 割り込みコントローラの初期化
 
 		set_vect	0x00, int_zero_div			; // 割り込み処理の登録：0除算
+		set_vect	0x20, int_timer				; // 割り込み処理の登録：タイマー
 		set_vect	0x21, int_keyboard			; // 割り込み処理の登録：KBC
 		set_vect	0x28, int_rtc				; // 割り込み処理の登録：RTC
 
@@ -41,11 +42,12 @@ kernel:
 		; デバイスの割り込み許可
 		;---------------------------------------
 		cdecl	rtc_int_en, 0x10				; rtc_int_en(UIE); // 更新サイクル終了割り込み許可
+		cdecl	int_en_timer0					; // タイマー（カウンタ0）割り込み許可
 
 		;---------------------------------------
 		; IMR(割り込みマスクレジスタ)の設定
 		;---------------------------------------
-		outp	0x21, 0b_1111_1001				; // 割り込み有効：スレーブPIC/KBC
+		outp	0x21, 0b_1111_1000				; // 割り込み有効：スレーブPIC/KBC/タイマー
 		outp	0xA1, 0b_1111_1110				; // 割り込み有効：RTC
 
 		;---------------------------------------
@@ -64,13 +66,18 @@ kernel:
 		;---------------------------------------
 		cdecl	draw_str, 25, 14, 0x010F, .s0	; draw_str();
 
+.10L:											; for (;;)
+												; {
 		;---------------------------------------
 		; 時刻の表示
 		;---------------------------------------
-.10L:											; for (;;)
-												; {
 		mov		eax, [RTC_TIME]					;   // 時刻の取得
 		cdecl	draw_time, 72, 0, 0x0700, eax	;   // 時刻の表示
+
+		;---------------------------------------
+		; 回転する棒を表示
+		;---------------------------------------
+		cdecl	draw_rotation_bar				;   // 回転する棒を表示
 
 		;---------------------------------------
 		; キーコードの取得
@@ -114,6 +121,10 @@ RTC_TIME:	dd	0
 %include	"../modules/protect/int_rtc.s"
 %include	"../modules/protect/int_keyboard.s"
 %include	"../modules/protect/ring_buff.s"
+
+%include	"modules/int_timer.s"
+%include	"../modules/protect/timer.s"
+%include	"../modules/protect/draw_rotation_bar.s"
 
 ;************************************************************************
 ;	パディング
