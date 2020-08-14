@@ -5,6 +5,7 @@
 ;************************************************************************
 
 %define	USE_SYSTEM_CALL
+%define	USE_TEST_AND_SET
 
 ;************************************************************************
 ;	マクロ
@@ -162,6 +163,7 @@ RTC_TIME:	dd	0
 %include	"../modules/protect/draw_rotation_bar.s"
 %include	"../modules/protect/call_gate.s"
 %include	"../modules/protect/trap_gate.s"
+%include	"../modules/protect/test_and_set.s"
 
 ;************************************************************************
 ;	パディング
