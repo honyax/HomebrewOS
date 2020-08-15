@@ -35,6 +35,7 @@ kernel:
 		;---------------------------------------
 		set_desc	GDT.tss_0, TSS_0			; // タスク0用TSSの設定
 		set_desc	GDT.tss_1, TSS_1			; // タスク1用TSSの設定
+		set_desc	GDT.tss_2, TSS_2			; // タスク2用TSSの設定
 
 		;---------------------------------------
 		; コールゲートの設定
@@ -69,6 +70,7 @@ kernel:
 		cdecl	init_pic						; // 割り込みコントローラの初期化
 
 		set_vect	0x00, int_zero_div			; // 割り込み処理の登録：0除算
+		set_vect	0x07, int_nm				; // 割り込み処理の登録：デバイス使用不可
 		set_vect	0x20, int_timer				; // 割り込み処理の登録：タイマー
 		set_vect	0x21, int_keyboard			; // 割り込み処理の登録：KBC
 		set_vect	0x28, int_rtc				; // 割り込み処理の登録：RTC
@@ -139,6 +141,7 @@ RTC_TIME:	dd	0
 %include	"descriptor.s"
 %include	"modules/int_timer.s"
 %include	"tasks/task_1.s"
+%include	"tasks/task_2.s"
 
 ;************************************************************************
 ;	モジュール
@@ -164,6 +167,8 @@ RTC_TIME:	dd	0
 %include	"../modules/protect/call_gate.s"
 %include	"../modules/protect/trap_gate.s"
 %include	"../modules/protect/test_and_set.s"
+%include	"../modules/protect/int_nm.s"
+%include	"../modules/protect/wait_tick.s"
 
 ;************************************************************************
 ;	パディング

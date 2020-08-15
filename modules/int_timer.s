@@ -32,12 +32,18 @@ int_timer:
 		str		ax								; AX = TR; // 現在のタスクレジスタ
 		cmp		ax, SS_TASK_0					; switch (AX)
 		je		.11L							; {
+		cmp		ax, SS_TASK_1					;
+		je		.12L							;
 												;   default:
 		jmp		SS_TASK_0:0						;     // タスク0に切り替え
 		jmp		.10E							;     break;
 												;
 .11L:											;   case SS_TASK_0:
 		jmp		SS_TASK_1:0						;     // タスク1に切り替え
+		jmp		.10E							;     break;
+												;
+.12L:											;   case SS_TASK_1:
+		jmp		SS_TASK_2:0						;     // タスク2に切り替え
 		jmp		.10E							;     break;
 .10E:											; }
 
