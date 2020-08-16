@@ -36,6 +36,7 @@ kernel:
 		set_desc	GDT.tss_0, TSS_0			; // タスク0用TSSの設定
 		set_desc	GDT.tss_1, TSS_1			; // タスク1用TSSの設定
 		set_desc	GDT.tss_2, TSS_2			; // タスク2用TSSの設定
+		set_desc	GDT.tss_3, TSS_3			; // タスク3用TSSの設定
 
 		;---------------------------------------
 		; コールゲートの設定
@@ -142,6 +143,7 @@ RTC_TIME:	dd	0
 %include	"modules/int_timer.s"
 %include	"tasks/task_1.s"
 %include	"tasks/task_2.s"
+%include	"tasks/task_3.s"
 
 ;************************************************************************
 ;	モジュール
