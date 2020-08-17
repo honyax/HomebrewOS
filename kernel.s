@@ -73,6 +73,7 @@ kernel:
 
 		set_vect	0x00, int_zero_div			; // 割り込み処理の登録：0除算
 		set_vect	0x07, int_nm				; // 割り込み処理の登録：デバイス使用不可
+		set_vect	0x0E, int_pf				; // 割り込み処理の登録：ページフォルト
 		set_vect	0x20, int_timer				; // 割り込み処理の登録：タイマー
 		set_vect	0x21, int_keyboard			; // 割り込み処理の登録：KBC
 		set_vect	0x28, int_rtc				; // 割り込み処理の登録：RTC
@@ -154,6 +155,7 @@ RTC_TIME:	dd	0
 %include	"descriptor.s"
 %include	"modules/paging.s"
 %include	"modules/int_timer.s"
+%include	"modules/int_pf.s"
 %include	"tasks/task_1.s"
 %include	"tasks/task_2.s"
 %include	"tasks/task_3.s"
@@ -184,6 +186,7 @@ RTC_TIME:	dd	0
 %include	"../modules/protect/test_and_set.s"
 %include	"../modules/protect/int_nm.s"
 %include	"../modules/protect/wait_tick.s"
+%include	"../modules/protect/memcpy.s"
 
 ;************************************************************************
 ;	パディング
