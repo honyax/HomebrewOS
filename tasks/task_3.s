@@ -291,15 +291,15 @@ fpu_rose_update:
 		fmul	st0, st3						;       rt |         |         |         |         |         |
 		fld		st0								;       rt |      rt |       A |       k |       r |xxxxxxxxx|
 												; ---------+---------+---------|---------|---------|---------|
-		; rt を θと置き換える					;       θ |      θ |       A |       k |       r |         |
+		; rt を θと置き換える					 ;        θ |       θ |       A |       k |       r |         |
 												; ---------+---------+---------|---------|---------|---------|
-		fsincos									;   cos(θ)|  sin(θ)|      θ |       A |       k |       r |
-		fxch	st2								;       θ |         |  cos(θ)|         |         |         |
-		fmul	st0, st4						;      kθ |         |         |         |         |         |
-		fsin									;  sin(kθ)|         |         |         |         |         |
-		fmul	st0, st3						; Asin(kθ)|         |         |         |         |         |
+		fsincos									;    cos(θ)|   sin(θ)|       θ |       A |       k |       r |
+		fxch	st2								;        θ |         |   cos(θ)|         |         |         |
+		fmul	st0, st4						;       kθ |         |         |         |         |         |
+		fsin									;   sin(kθ)|         |         |         |         |         |
+		fmul	st0, st3						;  Asin(kθ)|         |         |         |         |         |
 												; ---------+---------+---------|---------|---------|---------|
-												; Asin(kθ)|  sin(θ)|  cos(θ)|       A |       k |       r |
+												;  Asin(kθ)|   sin(θ)|   cos(θ)|       A |       k |       r |
 												; ---------+---------+---------|---------|---------|---------|
 		;---------------------------------------
 		; x =  A * sin(kθ) * cos(θ);
@@ -307,10 +307,10 @@ fpu_rose_update:
 												; ---------+---------+---------|---------|---------|---------|
 												;       ST0|      ST1|      ST2|      ST3|      ST4|      ST5|
 												; ---------+---------+---------|---------|---------|---------|
-												; Asin(kθ)|  sin(θ)|  cos(θ)|       A |       k |       r |
-		fxch	st2								;   cos(θ)|         |Asin(kθ)|         |         |         |
+												;  Asin(kθ)|   sin(θ)|   cos(θ)|       A |       k |       r |
+		fxch	st2								;    cos(θ)|         | Asin(kθ)|         |         |         |
 		fmul	st0, st2						;        x |         |         |         |         |         |
-		fistp	dword [eax]						;   sin(θ)|Asin(kθ)|       A |       k |       r |xxxxxxxxx|
+		fistp	dword [eax]						;    sin(θ)| Asin(kθ)|       A |       k |       r |xxxxxxxxx|
 												; ---------+---------+---------|---------|---------|---------|
 		;---------------------------------------
 		; y = -A * sin(kθ) * sin(θ);
@@ -318,7 +318,7 @@ fpu_rose_update:
 												; ---------+---------+---------|---------|---------|---------|
 												;       ST0|      ST1|      ST2|      ST3|      ST4|      ST5|
 												; ---------+---------+---------|---------|---------|---------|
-												;   sin(θ)|Asin(kθ)|       A |       k |       r |xxxxxxxxx|
+												;    sin(θ)| Asin(kθ)|       A |       k |       r |xxxxxxxxx|
 		fmulp	st1, st0						;        y |       A |       k |       r |xxxxxxxxx|xxxxxxxxx|
 		fchs									;       -y |         |         |         |xxxxxxxxx|xxxxxxxxx|
 		fistp	dword [ebx]						;        A |       k |       r |xxxxxxxxx|xxxxxxxxx|xxxxxxxxx|
