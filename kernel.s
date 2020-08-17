@@ -69,6 +69,7 @@ kernel:
 		;---------------------------------------
 		cdecl	init_int						; // 割り込みベクタの初期化
 		cdecl	init_pic						; // 割り込みコントローラの初期化
+		cdecl	init_page						; // ページングの初期化
 
 		set_vect	0x00, int_zero_div			; // 割り込み処理の登録：0除算
 		set_vect	0x07, int_nm				; // 割り込み処理の登録：デバイス使用不可
@@ -89,6 +90,17 @@ kernel:
 		;---------------------------------------
 		outp	0x21, 0b_1111_1000				; // 割り込み有効：スレーブPIC/KBC/タイマー
 		outp	0xA1, 0b_1111_1110				; // 割り込み有効：RTC
+
+		;---------------------------------------
+		; ページングを有効化
+		;---------------------------------------
+		mov		eax, CR3_BASE					;
+		mov		cr3, eax						; // ページテーブルの登録
+
+		mov		eax, cr0						; // PGビットをセット
+		or		eax, (1 << 31)					; CR0 |= PG;
+		mov		cr0, eax						;
+		jmp		$ + 2							; FLUSH();
 
 		;---------------------------------------
 		; CPUの割り込み許可
@@ -140,6 +152,7 @@ RTC_TIME:	dd	0
 ;	タスク
 ;************************************************************************
 %include	"descriptor.s"
+%include	"modules/paging.s"
 %include	"modules/int_timer.s"
 %include	"tasks/task_1.s"
 %include	"tasks/task_2.s"
