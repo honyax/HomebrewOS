@@ -37,6 +37,9 @@ kernel:
 		set_desc	GDT.tss_1, TSS_1			; // タスク1用TSSの設定
 		set_desc	GDT.tss_2, TSS_2			; // タスク2用TSSの設定
 		set_desc	GDT.tss_3, TSS_3			; // タスク3用TSSの設定
+		set_desc	GDT.tss_4, TSS_4			; // タスク4用TSSの設定
+		set_desc	GDT.tss_5, TSS_5			; // タスク5用TSSの設定
+		set_desc	GDT.tss_6, TSS_6			; // タスク6用TSSの設定
 
 		;---------------------------------------
 		; コールゲートの設定

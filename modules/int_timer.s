@@ -36,6 +36,12 @@ int_timer:
 		je		.12L							;
 		cmp		ax, SS_TASK_2					;
 		je		.13L							;
+		cmp		ax, SS_TASK_3					;
+		je		.14L							;
+		cmp		ax, SS_TASK_4					;
+		je		.15L							;
+		cmp		ax, SS_TASK_5					;
+		je		.16L							;
 												;   default:
 		jmp		SS_TASK_0:0						;     // タスク0に切り替え
 		jmp		.10E							;     break;
@@ -50,6 +56,18 @@ int_timer:
 												;
 .13L:											;   case SS_TASK_2:
 		jmp		SS_TASK_3:0						;     // タスク3に切り替え
+		jmp		.10E							;     break;
+												;
+.14L:											;   case SS_TASK_3:
+		jmp		SS_TASK_4:0						;     // タスク4に切り替え
+		jmp		.10E							;     break;
+												;
+.15L:											;   case SS_TASK_4:
+		jmp		SS_TASK_5:0						;     // タスク5に切り替え
+		jmp		.10E							;     break;
+												;
+.16L:											;   case SS_TASK_5:
+		jmp		SS_TASK_6:0						;     // タスク6に切り替え
 		jmp		.10E							;     break;
 .10E:											; }
 
