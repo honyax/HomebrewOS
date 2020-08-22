@@ -60,4 +60,5 @@ FILE:   db      'hello, FAT!'
 
 ALIGN 512, db 0x00
 
+        times (512 * 63)    db  0x00
 

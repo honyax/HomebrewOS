@@ -160,6 +160,21 @@ kernel:
 		mov		[esi + 32], byte 0				;       [ESI +32] = 0; // 最大32文字
 		cdecl	draw_str, 0, 0, 0x0F04, esi		;       draw_str();    // 文字列の表示
 .12E:											;     }
+
+		;---------------------------------------
+		; CTRL+ALD+ENDキー
+		;---------------------------------------
+		mov		al, [.int_key]					;     AL  = [.int_key]; // キーコード
+		cdecl	ctrl_alt_end, eax				;     EAX = ctrl_alt_end(キーコード);
+		cmp		eax, 0							;     if (0 != EAX)
+		je		.14E							;     {
+												;
+		mov		eax, 0							;       // 電断処理は一度だけ行う
+		bts		[.once], eax					;       if (0 == bts(.once))
+		jc		.14E							;       {
+		cdecl	power_off						;         power_off(); // 電断処理
+												;       }
+.14E:											;     }
 .10E:											;   }
 		jmp		.10L							; }
 
@@ -167,6 +182,7 @@ kernel:
 
 ALIGN 4, db 0
 .int_key:	dd	0
+.once:		dd	0
 
 ALIGN 4, db 0
 FONT_ADR:	dd	0
@@ -210,6 +226,11 @@ RTC_TIME:	dd	0
 %include	"../modules/protect/int_nm.s"
 %include	"../modules/protect/wait_tick.s"
 %include	"../modules/protect/memcpy.s"
+%include	"../modules/protect/ctrl_alt_end.s"
+%include	"../modules/protect/power_off.s"
+%include	"../modules/protect/acpi_find.s"
+%include	"../modules/protect/find_rsdt_entry.s"
+%include	"../modules/protect/acpi_package_value.s"
 
 ;************************************************************************
 ;	パディング
